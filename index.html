@@ -3,119 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator</title>
+    <title>Advanced QR Code Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Library for QR Code Generation -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- Using a more advanced QR code library that supports styling and logos -->
+    <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0/lib/qr-code-styling.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Basic styling for the QR code container to prevent layout shifts */
-        #qrcode {
-            width: 256px;
-            height: 256px;
-            margin: 1.5rem auto;
+        #canvas {
+            width: 100%;
+            height: 100%;
+            transition: all 0.3s ease-in-out;
+            /* Flex properties added to center the QR code element within this div */
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: 0.5rem;
-            background-color: #f3f4f6;
-            transition: all 0.3s ease-in-out;
         }
-        #qrcode img {
+        /* Style for the color input previews */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: 1px solid #e2e8f0;
             border-radius: 0.5rem;
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen py-12">
 
-    <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
-        <h1 class="text-3xl font-bold text-gray-800 mb-4">QR Code Generator</h1>
-        <p class="text-gray-600 mb-6">Enter a URL or any text below to generate a QR code.</p>
+    <div class="bg-white p-8 rounded-xl shadow-lg max-w-2xl w-full">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2 text-center">Advanced QR Code Generator</h1>
+        <p class="text-gray-600 mb-6 text-center">Customize your QR code with colors, shapes, and a logo.</p>
 
         <!-- Input for the link -->
         <div class="mb-4">
-            <input type="text" id="text-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="https://example.com">
+            <label for="text-input" class="block text-sm font-medium text-gray-700 mb-1">URL or Text</label>
+            <input type="text" id="text-input" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition" value="https://www.google.com">
         </div>
 
-        <!-- Button to generate the QR code -->
-        <button id="generate-btn" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
-            Generate QR Code
-        </button>
+        <!-- Customization Options -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <!-- Size Dropdown -->
+            <div>
+                <label for="size-select" class="block text-sm font-medium text-gray-700 mb-1">Size</label>
+                <select id="size-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="256" selected>256x256</option>
+                    <option value="300">300x300</option>
+                    <option value="400">400x400</option>
+                    <option value="512">512x512</option>
+                </select>
+            </div>
+             <!-- Shape (Dot Style) Dropdown -->
+            <div>
+                <label for="dot-style-select" class="block text-sm font-medium text-gray-700 mb-1">Dot Style</label>
+                <select id="dot-style-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="square" selected>Square</option>
+                    <option value="dots">Dots</option>
+                    <option value="rounded">Rounded</option>
+                    <option value="extra-rounded">Extra Rounded</option>
+                    <option value="classy">Classy</option>
+                    <option value="classy-rounded">Classy Rounded</option>
+                </select>
+            </div>
+            <!-- Dark Color Picker -->
+            <div class="flex items-center space-x-3">
+                <input type="color" id="color-dark-input" value="#000000">
+                <label for="color-dark-input" class="text-sm font-medium text-gray-700">QR Color</label>
+            </div>
+            <!-- Light Color Picker -->
+            <div class="flex items-center space-x-3">
+                <input type="color" id="color-light-input" value="#ffffff">
+                <label for="color-light-input" class="text-sm font-medium text-gray-700">Background</label>
+            </div>
+            <!-- Logo Upload -->
+             <div class="col-span-1 md:col-span-2">
+                <label for="logo-upload" class="block text-sm font-medium text-gray-700 mb-1">Logo (optional)</label>
+                <input type="file" id="logo-upload" accept="image/png, image/jpeg, image/svg+xml" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+        </div>
 
-        <!-- Container where the QR code will be displayed -->
-        <div id="qrcode-container" class="mt-6">
-            <div id="qrcode"></div>
+        <!-- Container where the QR code will be displayed. -->
+        <div id="qrcode-container" class="mx-auto mb-6 bg-gray-100 rounded-lg p-4 flex justify-center items-center">
+            <div id="canvas"></div>
         </div>
         
-        <!-- Message area -->
-        <p id="message" class="text-sm text-gray-500 mt-4 h-5"></p>
-
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3">
+             <button id="generate-btn" class="w-full bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
+                Generate QR Code
+            </button>
+            <button id="download-btn" class="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105">
+                Download
+            </button>
+        </div>
     </div>
 
     <script>
-        // Get references to the HTML elements
-        const generateBtn = document.getElementById('generate-btn');
+        // --- DOM Element References ---
         const textInput = document.getElementById('text-input');
-        const qrcodeContainer = document.getElementById('qrcode');
-        const messageEl = document.getElementById('message');
+        const sizeSelect = document.getElementById('size-select');
+        const dotStyleSelect = document.getElementById('dot-style-select');
+        const colorDarkInput = document.getElementById('color-dark-input');
+        const colorLightInput = document.getElementById('color-light-input');
+        const logoUpload = document.getElementById('logo-upload');
+        const generateBtn = document.getElementById('generate-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const qrContainer = document.getElementById('qrcode-container');
         
-        let qrcode = null; // Variable to hold the QRCode instance
+        let logoUrl = null; // To store the uploaded logo data URL
+        let qrCode; // To hold the QRCodeStyling instance
 
         /**
-         * Function to generate the QR code.
+         * Creates or updates the QR code based on current settings.
          */
-        function generateQRCode() {
-            const text = textInput.value.trim();
+        function generateOrUpdateQRCode() {
+            const size = parseInt(sizeSelect.value, 10);
+            
+            const options = {
+                width: size,
+                height: size,
+                data: textInput.value.trim(),
+                image: logoUrl,
+                dotsOptions: {
+                    color: colorDarkInput.value,
+                    type: dotStyleSelect.value
+                },
+                backgroundOptions: {
+                    color: colorLightInput.value,
+                },
+                imageOptions: {
+                    crossOrigin: "anonymous",
+                    margin: 10,
+                    imageSize: 0.4 // 40% of the QR code size
+                }
+            };
 
-            // Clear previous QR code and message
-            qrcodeContainer.innerHTML = '';
-            messageEl.textContent = '';
-
-            if (text === "") {
-                messageEl.textContent = "Please enter some text or a URL.";
-                qrcodeContainer.style.backgroundColor = '#f3f4f6'; // Reset background
-                return;
-            }
-
-            // Clear the background color when a QR code is generated
-            qrcodeContainer.style.backgroundColor = 'transparent';
-
-            // Generate the new QR code
-            try {
-                 qrcode = new QRCode(qrcodeContainer, {
-                    text: text,
-                    width: 256,
-                    height: 256,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-                 messageEl.textContent = "QR Code generated successfully!";
-            } catch (error) {
-                console.error("Error generating QR code:", error);
-                messageEl.textContent = "Could not generate QR code. Check the console for errors.";
-                qrcodeContainer.style.backgroundColor = '#fecaca'; // Red background for error
+            // If qrCode instance doesn't exist, create it. Otherwise, update it.
+            if (!qrCode) {
+                qrCode = new QRCodeStyling(options);
+                qrCode.append(document.getElementById("canvas"));
+            } else {
+                qrCode.update(options);
             }
         }
 
-        // Add event listener to the button
-        generateBtn.addEventListener('click', generateQRCode);
+        /**
+         * Handles the logo file upload.
+         */
+        logoUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                logoUrl = null;
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                logoUrl = reader.result;
+                generateOrUpdateQRCode(); // Update QR code once logo is loaded
+            };
+            reader.readAsDataURL(file);
+        });
 
-        // Allow pressing Enter to generate the QR code
-        textInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                generateQRCode();
+        // --- Event Listeners ---
+        generateBtn.addEventListener('click', generateOrUpdateQRCode);
+        downloadBtn.addEventListener('click', () => {
+            if (qrCode) {
+                qrCode.download({ name: "qrcode", extension: "png" });
             }
         });
 
-        // Generate a default QR code on load for demonstration
-        window.onload = () => {
-            textInput.value = 'https://www.google.com';
-            generateQRCode();
-        };
+        // Add listeners to all customization inputs to update the QR code live
+        [textInput, sizeSelect, dotStyleSelect, colorDarkInput, colorLightInput].forEach(input => {
+            input.addEventListener('change', generateOrUpdateQRCode);
+        });
+        
+        // Allow pressing Enter in the text input to generate the QR code
+        textInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                generateOrUpdateQRCode();
+            }
+        });
+
+        // Generate the initial QR code on page load
+        window.onload = generateOrUpdateQRCode;
 
     </script>
 
